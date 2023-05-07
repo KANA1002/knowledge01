@@ -1,0 +1,23 @@
+import http.server
+import socketserver
+
+class MyHandler(http.server.SimpleHTTPRequestHandler):
+    online = 0
+
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(b"<html><head><title>Online Users</title></head>")
+        self.wfile.write(b"<body><p>There are currently %d users online.</p></body></html>" % (MyHandler.online))
+        return
+
+    def log_message(self, format, *args):
+        pass
+
+PORT = 8000
+
+handler = MyHandler
+with socketserver.TCPServer(("0.0.0.0", PORT), handler) as httpd:
+    print("serving at port", PORT)
+    httpd.serve_forever()
