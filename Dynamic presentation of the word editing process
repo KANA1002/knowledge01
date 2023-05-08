@@ -1,0 +1,34 @@
+import pyautogui
+import time
+import win32com.client as win32
+
+# Simulates keyboard input text
+def type_text(text):
+    for c in text:
+        pyautogui.press(c)
+        time.sleep(0.1)
+
+# use PyWinAuto open Word and create new word
+word = win32.gencache.EnsureDispatch('Word.Application')
+doc = word.Documents.Add()
+
+# Enter text in the new document
+type_text("Hello, this is a demostration of editing a Word document using Python and PyAutoGUI.")
+
+# save new doc
+doc.SaveAs(r"C:\Users\username\Documents\demo.docx")
+doc.Close()
+
+# use PyWinAuto open Word 
+word = win32.gencache.EnsureDispatch('Word.Application')
+doc = word.Documents.Open(r"C:\Users\username\Documents\demo.docx")
+
+# Make some simple edits in a Word document
+pyautogui.hotkey('ctrl', 'home')  # Move the cursor to the beginning of the document
+pyautogui.press('enter')          # Insert a carriage return line feed at the cursor position
+type_text("This is a new line added by Python.")  # Enter a new line of text
+pyautogui.hotkey('ctrl', 'end')   # Move the cursor to the end of the document
+
+# Demonstrate the editing process
+word.Visible = True
+doc.Activate()
