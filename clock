@@ -1,0 +1,6 @@
+import time
+
+while True:
+    current_time = time.strftime("%H:%M:%S", time.localtime()) # Gets the local time and formats it as hours:minutes:seconds
+    print(current_time, end="\r") # Outputs the current time and uses the carriage return character to overwrite the previous output, creating a clock effect
+    time.sleep(1) # Pause for 1 second
