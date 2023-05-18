@@ -1,0 +1,31 @@
+import librosa
+from sklearn.neighbors import KNeighborsClassifier
+
+# 提取特征函数
+def extract_features(file_path):
+    # 使用librosa.load()函数加载音频文件
+    audio, sample_rate = librosa.load(file_path)
+
+    # 使用librosa.feature函数分析音频文件，提取相关特征
+    # 这里以音频的梅尔频率倒谱系数（Mel Frequency Cepstral Coefficients）作为特征示例
+    mfcc_features = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=20)
+    return mfcc_features.flatten()
+
+# 准备数据
+file_names = ['path/to/file1', 'path/to/file2', ...] # 所有音频文件的路径列表
+labels = ['label1', 'label2', ...] # 每个音频对应的标签列表
+
+data = []
+for file_name in file_names:
+    features = extract_features(file_name)
+    data.append(features)
+
+# 训练模型
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(data, labels)
+
+# 测试单个音频文件的标签
+test_file = 'path/to/test_file'
+test_data = extract_features(test_file)
+predicted_label = knn.predict([test_data])[0]
+print(predicted_label)
