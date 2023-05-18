@@ -1,0 +1,14 @@
+import stripe
+
+# 设置Stripe API密钥
+stripe.api_key = "sk_test_xxxxxxxxxxxx"
+
+# 创建一个Charge（付款）对象
+charge = stripe.Charge.create(
+    amount=1000,      # 支付总额，单位为美分
+    currency="usd",   # 支付货币
+    source="tok_visa" # Stripe提供的信用卡测试令牌
+)
+
+# 处理成功付款后的代码逻辑
+print("Payment successful!")
