@@ -1,0 +1,19 @@
+import requests
+import json
+
+# 调用API创建一页笔记
+url = 'https://graph.microsoft.com/v1.0/me/notes/pages'
+headers = {
+    'Authorization': 'Bearer <ACCESS_TOKEN>',
+    'Content-Type': 'application/json'
+}
+params = {
+    'content': '<h1>My MindMap</h1><object data="data:image/png;base64,<BASE64_ENCODED_IMAGE>" type="image/png"></object>'
+}
+response = requests.post(url=url, headers=headers, data=json.dumps(params))
+page_id = response.json()['id']
+
+# 调用API更新笔记内容，插入MindMap
+mindmap_content = '<html><head></head><body><center><img src="data:image/png;base64,<BASE64_ENCODED_IMAGE>"/></center></body></html>'
+mindmap_url = 'https://graph.microsoft.com/v1.0/me/notes/pages/'+ page_id + '/content'
+response = requests.patch(url=mindmap_url, headers=headers, data=mindmap_content)
