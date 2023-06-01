@@ -1,0 +1,32 @@
+import os
+import requests
+
+# OneNote API 的访问令牌
+access_token = "< Access Token>"
+
+# OneNote 页面的 ID
+page_id = "<Your Page ID>"
+
+# PDF 文件的路径
+pdf_path = "<Your PDF Path>"
+
+# 构造上传请求的 URL
+url = "https://graph.microsoft.com/v1.0/menotes/pages/{}/content".format(page_id)
+
+# 构造上传请求的头部信息
+headers = {
+    "Authorization": "Bearer {}".format(access_token),
+    "Content-Type": "multipart/form-data"
+}
+
+# 构造上传请求的参数
+files = {
+    "Commands": (None, '[{"Add":"<div><object data=\\"name:{}\\" type=\\"application/pdf\\" width=\\"100%\\" height=\\"100%\\"></object></div>"}]'.format(os.path.basename(pdf_path))),
+    "{}".format(os.path.basename(pdf_path)): open(pdf_path, "rb")
+}
+
+# 发送上传请求
+response = requests.post(url, headers=headers, files=files)
+
+# 打印上传结果
+print(response.json())
