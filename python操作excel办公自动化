@@ -1,0 +1,16 @@
+import openpyxl
+
+# 打开 Excel 文件
+workbook = openpyxl.load_workbook('example.xlsx')
+
+# 选择工作表
+worksheet = workbook['Sheet1']
+
+# 获取单元格值
+cell_value = worksheet.cell(row=1, column=1).value
+
+# 修改单元格值
+worksheet.cell(row=1, column=1, value='Hello World!')
+
+# 保存修改后的 Excel 文件
+workbook.save('example_modified.xlsx')
