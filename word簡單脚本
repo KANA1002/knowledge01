@@ -1,0 +1,24 @@
+import win32com.client
+
+# 創建 Word 應用程序對象
+word = win32com.client.Dispatch('Word.Application')
+
+# 獲取 Word 主菜單對象
+menu_bar = word.CommandBars.ActiveMenuBar
+
+# 創建新的菜單項
+menu_item = menu_bar.Controls.Add(Type=1)
+
+# 設置菜單項名稱
+menu_item.Caption = 'My Plugin'
+
+# 添加菜單項點擊事件
+def on_menu_item_click():
+    # 顯示彈窗
+    dialog = win32com.client.Dispatch('UserForm1.UserForm')
+    dialog.Show()
+
+menu_item.OnAction = on_menu_item_click
+
+# 顯示 Word 顯示應用程序窗口
+word.Visible = True
