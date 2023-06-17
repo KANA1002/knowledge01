@@ -1,0 +1,26 @@
+from docx import Document
+from openpyxl import Workbook
+
+# Create a new Excel workbook
+workbook = Workbook()
+
+# Gets the default worksheet
+worksheet = workbook.active
+
+# Select the Word document that needs to read the data
+word_files = ['doc1.docx', 'doc2.docx']
+
+for file in word_files:
+    # Open the Word document
+    doc = Document(file)
+
+    # Iterate through the paragraphs in the document and write the content to an Excel table
+    for paragraph in doc.paragraphs:
+        # Gets the text content of a Word paragraph
+        text = paragraph.text
+
+        # Write the contents to the next row in the Excel table
+        worksheet.append([text])
+
+# Save the Excel file
+workbook.save('word_data.xlsx')
