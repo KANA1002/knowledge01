@@ -1,0 +1,44 @@
+Sub PlayYouTubeVideo()
+    Dim slide As Slide
+    Dim shape As Shape
+    Dim i As Integer
+    
+    ' Set up the first slide
+    Set slide = ActivePresentation.Slides(1)
+    
+    ' Create a shape and set its position and size
+    Set shape = slide.Shapes.AddMediaObject2("https://www.youtube.com/watch?v=VIDEO_ID", msoMediaOnline)
+    shape.Left = 100
+    shape.Top = 100
+    shape.Width = 640
+    shape.Height = 360
+    
+    ' Set the shape property to AutoPlay
+    With shape
+        .AnimationSettings.PlaySettings.HideWhileNotPlaying = True
+        .AnimationSettings.PlaySettings.LoopUntilStopped = True
+        .AnimationSettings.PlaySettings.PlayOnEntry = True
+        .AnimationSettings.PlaySettings.PauseAnimation = False
+    End With
+    
+    ' Adds a shape to the selected slide
+    slide.Shapes.Range(Array(shape.Name)).Select
+    With Selection.ShapeRange
+        For i = 1 To slide.TimeLine.MainSequence.Count
+            If slide.TimeLine.MainSequence(i).Shape.Name = shape.Name Then
+                Exit For
+            End If
+        Next i
+        slide.TimeLine.MainSequence.ConvertToText Unit:=ppShapeFormatPlainText
+        slide.TimeLine.MainSequence(i).TextEffect.Text = "Unfortunately, this video cannot be played automatically. Please click the link to watch the video: .youtube.com/watch?v=VIDEO_ID"
+        slide.TimeLine.MainSequence(i).TextEffect.Font.Size = 18
+        slide.TimeLine.MainSequence.ConvertToShape
+    End With
+    
+    ' Set the slide show mode to Autoplay
+    With ActivePresentation.SlideShowSettings
+        .ShowType = ppShowTypeKiosk
+        .LoopUntilStopped = True
+        .RangeType = ppShowAll
+    End With
+End Sub
