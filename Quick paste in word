@@ -1,0 +1,11 @@
+Sub PastePlainText()
+    ' Gets the text from the clipboard
+    Dim clipboardText As String
+    clipboardText = Application.TextClipboardFormats(1)
+    
+    ' Make sure there is text in the clipboard
+    If Len(Text) > 0 Then
+        ' Inserts plain text at the current cursor position
+        Selection.TypeText Text:=clipboard
+    End If
+End Sub
