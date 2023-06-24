@@ -1,0 +1,24 @@
+from datetime import datetime, timedelta
+from tiktok import TikTokAPI
+
+# Replace with your own access credentials for the TikTok open API
+api = TikTokAPI('<YOUR_ACCESS_TOKEN>', '<YOUR_TIKTOK_SECRET>')
+
+# Specify the host or live room ID to query
+user_id = '<TikTok User ID>'
+room_id = '<TikTok Live Room ID>'
+
+# Get the timestamp from a week ago and the current timestamp
+one_week_ago = datetime.now() - timedelta(days=7)
+timestamp_start = int(one_week_ago.timestamp())
+timestamp_end = int(datetime.now().timestamp())
+
+# Get historical information about the live room
+live_history = api.get_live_history(room_id, user_id, timestamp_start, timestamp_end)
+
+# Count viewers
+total_viewers = 0
+for status in live_history['status']:
+    total_viewers += status['watching_count']
+
+print("Total viewers in the past week: ", total_viewers)
