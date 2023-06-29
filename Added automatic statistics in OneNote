@@ -1,0 +1,21 @@
+from onenote import Notebook, Section
+
+# Specifies the name of the OneNote notebook and section
+notebook_name = '<Notebook Name>'
+section_name = '<Section Name>'
+
+# Create a OneNote notebook object
+notebook = Notebook.from_file('<Path to .one or .zip file>')  # Or connect through the API
+
+# Gets the part of the specified name
+section = notebook.get_section_by_name(section_name)
+
+# Read the contents of a specific page
+page_content = section.get_page_content('<Page Title>')
+
+# Here the page content is parsed and extracted, and statistical operations are performed
+# ...
+
+# After performing the statistics operation, insert the results into the OneNote page
+result = "Statistical results：XXX"  # with actual statistical results
+section.append_page_content('<Page Title>', result)
