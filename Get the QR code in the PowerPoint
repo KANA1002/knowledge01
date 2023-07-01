@@ -1,0 +1,20 @@
+from pptx import Presentation
+
+# Open the PowerPoint file
+presentation = Presentation('example.pptx')
+
+ Iterate through all the slides
+for slide in presentation.slides:
+    # Iterate through all the shapes in the slide
+    for shape in slide.shapes:
+        # Check if the shape is a QR code image
+        if shape.has_text_frame:
+            text_frame = shape.text_frame
+            if 'QR code' in text_frame.text:
+                print('QR code:', shape.text)
+
+        # Check that the shape is a code text box
+        if shape.has_text_frame:
+            text_frame = shape.text_frame
+            if 'Python' in text_frame.text:
+                print('Python code:', shape.text)
