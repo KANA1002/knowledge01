@@ -1,0 +1,20 @@
+from docx import Document
+
+ Open the Word file
+doc = Document('example.docx')
+
+# Iterate through all paragraphs
+for paragraph in doc.paragraphs:
+    # Gets the paragraph level
+    level = paragraph.style.name.split()[1]
+    
+    # Paragraph formatting is adjusted according to the level
+    if level.isdigit():
+        # Subtract the paragraph level by one
+        new_level = str(int(level) - 1)
+        
+        # Sets a new paragraph level
+        paragraph.style = 'Heading ' + new_level
+
+# Save the modified Word file
+doc.save('example_modified.docx')
