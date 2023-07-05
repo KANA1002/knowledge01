@@ -1,2 +1,2 @@
-# knowledge01
+# HONGKONG KANA media company
 just something easy
