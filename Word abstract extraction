@@ -1,0 +1,27 @@
+from docx import Document
+from gensim.summarization import summarize
+
+def extract_summary_from_word_doc(filename, ratio=0.2):
+    # Open the Word document
+    doc = Document(filename)
+   
+    # Extract all paragraphs in the document
+    paragraphs = [p.text for p in doc.paragraphs]
+   
+    # Stitch paragraphs into a string
+    document_text = ' '.join(paragraphs)
+   
+    # Use the summarize function of the gensim library to extract the summary
+    summary = summarize(document_text, ratio=ratio)
+   
+    return summary
+
+# Here set the Word document path and summary ratio you want to extract the summary
+word_doc_path = 'path/to/your/word/document.docx'
+summary_ratio = 0.2
+
+# Extract the summary
+summary = extract_summary_from_word_doc(word_doc_path, summary_ratio)
+
+# Print a summary of the extraction
+print(summary
