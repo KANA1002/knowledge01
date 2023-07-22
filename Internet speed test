@@ -1,0 +1,21 @@
+import urllib.request
+import time
+
+def test_internet_speed(url):
+    try:
+        start_time = time.time()
+        response = urllib.request.urlopen(url)
+        end_time = time.time()
+        downloaded_data = response.read()
+        download_time = end_time - start_time
+
+        # Convert bytes to megabits and calculate speed
+        speed_mbps = len(downloaded_data) * 8 / (download_time * 1024 * 1024)
+
+        print(f"The internet speed test is complete！\nDownload speed：{speed_mbps:.2f} Mbps")
+    except Exception as e:
+        print(f"error：{e}")
+
+if __name__ == "__main__":
+    url_to_test = "https://example.com/large_file_to_download"
+    test_internet_speed(url_to_test)
