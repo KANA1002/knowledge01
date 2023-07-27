@@ -1,0 +1,10 @@
+import re
+
+def extract_references(text):
+    references = re.findall(r'\[(\d+)\]', text)
+    return references
+
+# Suppose your paper abstract text is stored in a string variable
+abstract = "This is a paper abstract about extracting Python code from paper references. References are enclosed in square brackets, such as [1] and [2]."
+references = extract_references(abstract)
+print(references)
