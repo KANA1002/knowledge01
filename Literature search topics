@@ -1,0 +1,24 @@
+import requests
+
+def search_related_papers(topic):
+    base_url = 'https://scholar.google.com/scholar'
+    params = {
+        'q': topic,
+        'hl': 'en',  # Set the language
+        'as_vis': 0,  # The summary is not displayed
+        'num': 5  # Specifies the number of results returned
+    }
+
+    try:
+        response = requests.get(base_url, params=params)
+        response.raise_for_status()
+
+        results = response.text.split('\n')
+        for idx, result in enumerate(results, start=1):
+            if result.startswith('[CITATION]'):
+                print(f'{idx}. {result[10:]}')  # Remove the [CITATION] mark and print out the result
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+
+# Call the function and pass in the topic
+search_related_papers('artificial intelligence')
