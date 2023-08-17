@@ -1,0 +1,26 @@
+import PyPDF2
+from docx import Document
+
+def pdf_to_word(pdf_path, word_path):
+    # Create a PDF file reader object
+    pdf_file = open(pdf_path, 'rb')
+    pdf_reader = PyPDF2.PdfFileReader(pdf_file)
+
+    # Create a Word document object
+    doc = Document()
+
+    # Traverse each page of the PDF file
+    for page_num in range(pdf_reader.numPages):
+        # Extract text from PDF files
+        text = pdf_reader.getPage(page_num).extractText()
+        # Add the extracted text to the Word document
+        doc.add_paragraph(text)
+
+    # Save the Word document
+    doc.save(word_path)
+
+    # Close the PDF file
+    pdf_file.close()
+
+# Use the function to convert PDF file to Word file
+pdf_to_word('example.pdf', 'output.docx')
