@@ -1,0 +1,35 @@
+using Microsoft.Office.Interop.OneNote;
+using System.Xml.Linq;
+
+public void MergeCellsInOneNote()
+{
+    var onenoteApp = new Application();
+    string notebookXml;
+    onenoteApp.GetHierarchy(null, HierarchyScope.hsPages, out notebookXml);
+
+    var doc = XDocument.Parse(notebookXml);
+    var ns = doc.Root.Name.Namespace;
+
+    // Get the first page
+    var pageId = doc.Descendants(ns + "Page").First().Attribute("ID").Value;
+
+    // Get the page content
+    string pageContentXml;
+    onenoteApp.GetPageContent(pageId, out pageContentXml, PageInfo.piAll);
+
+    var pageContent = XDocument.Parse(pageContentXml);
+
+    // Get the first table
+    var table = pageContent.Descendants(ns + "Table").First();
+
+    // Gets the cells to merge
+    var cell1 = table.Descendants(ns + "Cell").ElementAt(0);
+    var cell2 = table.Descendants(ns + "Cell").ElementAt(1);
+
+    // Merge cells
+    cell1.SetAttributeValue("colSpan", "2");
+    cell2.Remove();
+
+    // Update the page content
+    onenoteApp.UpdatePageContent(pageContent.ToString());
+}
