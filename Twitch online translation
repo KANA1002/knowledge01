@@ -1,0 +1,37 @@
+import os
+from twitchio.ext import commands
+from googletrans import Translator
+
+# Set environment variables
+os.environ['TWITCHIO_IRC_TOKEN'] = 'your_twitch_bot_token'
+os.environ['TWITCHIO_CLIENT_ID'] = 'your_twitch_client_id'
+os.environ['TWITCHIO_CLIENT_SECRET'] = 'your_twitch_client_secret'
+
+# Language code reference：https://cloud.google.com/translate/docs/languages
+target_language = 'zh-tw'  # The target language you want to translate into
+
+translator = Translator()
+
+class TwitchTranslatorBot(commands.Bot):
+
+    def __init__(self):
+        super().__init__(irc_token=os.environ['TWITCHIO_IRC_TOKEN'],
+                         client_id=os.environ['TWITCHIO_CLIENT_ID'],
+                         client_secret=os.environ['TWITCHIO_CLIENT_SECRET'],
+                         prefix='!',
+                         initial_channels=['your_twitch_channel'])
+
+    async def event_ready(self):
+        print(f'Logged in as | {self.nick}')
+
+    async def event_message(self, message):
+        print(message.content)
+        await self.handle_commands(message)
+
+        # Translate and send messages
+        translated_message = translator.translate(message.content, dest=target_language).text
+        await message.channel.send(translated_message)
+
+if __name__ == '__main__':
+    bot = TwitchTranslatorBot()
+    bot.run()
