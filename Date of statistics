@@ -1,0 +1,21 @@
+import datetime
+
+# Get the current date
+current_date = datetime.date.today()
+print(f"Today's date is:: {current_date}")
+
+# Set a target date – for example, we want to know how many days are left until December 31, 2023
+target_date = datetime.date(2023, 12, 31)
+
+# Calculate the difference between the current date and the target date
+delta = target_date - current_date
+print(f"distance {target_date} and {delta.days} day")
+
+# If you want to count the dates for each day in a time period, you can do the following:
+start_date = datetime.date(2023, 1, 1)
+end_date = datetime.date(2023, 1, 7)
+date_list = [start_date + datetime.timedelta(days=x) for x in range((end_date - start_date).days + 1)]
+
+print("Below is a list of dates for statistics：")
+for date in date_list:
+    print(date)
