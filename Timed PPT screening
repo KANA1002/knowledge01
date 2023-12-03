@@ -1,0 +1,44 @@
+import os
+import time
+import datetime
+import win32com.client
+
+# Set the start time of the screening (24-hour format)
+start_hour = 15  # 15 means 3 p.m
+start_minute = 30  # 30minute
+
+# Set the path of the PPT file
+ppt_path = "C:\\path\\to\\your\\presentation.pptx"
+
+# Check if the file exists
+if not os.path.exists(ppt_path):
+    raise FileNotFoundError(f"The specified file does not exist: {ppt_path}")
+
+# Create a COM object
+Application = win32com.client.Dispatch("PowerPoint.Application")
+
+# Calculates the number of seconds of delay from the current time to the start time of the show
+now = datetime.datetime.now()
+start_time = datetime.datetime(now.year, now.month, now.day, start_hour, start_minute)
+delay = (start_time - now).total_seconds()
+
+# If the current time is later than the showtime, it is scheduled for the next day
+if delay < 0:
+    start_time = start_time + datetime.timedelta(days=1)
+    delay = (start_time - now).total_seconds()
+
+print(f"Presentation will start at: {start_time}")
+
+# Wait for the show start time
+time.sleep(delay)
+
+# Open the PPT file
+Presentation = Application.Presentations.Open(ppt_path)
+
+# Start the screening
+Presentation.SlideShowSettings.Run()
+
+# You can add additional code to control the show, such as waiting for the show to end or ending the show at a specific time
+# ...
+
+# Note: This code does not automatically close PowerPoint, you may need to add code to close it at the appropriate time
