@@ -1,0 +1,22 @@
+# Enter the information, separated by commas
+data = input("Please enter the information separated by commas: ")
+
+# Converts the entered string to a list
+data_list = data.split(',')
+
+# Converts elements in a list to integers
+data_list = [int(x) for x in data_list]
+
+# Statistics
+count = len(data_list)
+
+# Calculate the sum
+total = sum(data_list)
+
+# Calculate the average
+average = total / count
+
+# Print the results
+print("quantity: ", count)
+print("sum: ", total)
+print("average: ", average)
