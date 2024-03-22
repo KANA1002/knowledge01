@@ -1,0 +1,23 @@
+from pptx import Presentation
+from pptx.util import Inches
+import datetime
+
+# PPT file path
+ppt_path = "path_to_your_presentation.pptx"
+
+# Load the PPT file
+prs = Presentation(ppt_path)
+
+# Iterate through each slide and each shape, looking for a text box with a specific tag for the package (e.g. "[TIME]")
+for slide in prs.slides:
+    for shape in slide.shapes:
+        if not shape.has_text_frame:
+            continue
+        if shape.text_frame.text == "[TIME]":
+            # Update the time in the text box
+            shape.text_frame.text = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+# Save the PPT file
+prs.save(ppt_path)
+
+print("The PPT time has been updated```
