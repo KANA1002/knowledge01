@@ -1,0 +1,17 @@
+root directory
+├─boot
+│   BCD
+│   boot.sdi
+├─fonts
+│   chs_boot.ttf
+│   wgl4_boot.ttf
+└─zh-cn
+    bootmgr.exe.mui
+├─efi
+│   zh-cn
+│       bootia32.efi.mui
+│       bootx64.efi.mui
+├─boot
+│   bootia32.efi
+└─WEPE
+    WEPE64.WIM
