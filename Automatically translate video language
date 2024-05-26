@@ -1,0 +1,30 @@
+import speech_recognition as sr
+from googletrans import Translator
+from moviepy.editor import VideoFileClip
+
+# Speech recognizer
+r = sr.Recognizer()
+
+# Translator
+translator = Translator()
+
+# Load the video
+video = VideoFileClip("video.mp4")
+
+# Process video frame by frame
+for i, frame in enumerate(video.iter_frames()):
+    with sr.AudioData(frame, frame_rate=video.fps, sample_width=2) as audio_data:
+        try:
+            # Recognize speech
+            text = r.recognize_google(audio_data)
+            
+            # Translate the text
+            translated_text = translator.translate(text, dest='en').text
+            
+            # Output the translation result
+            print(translated_text)
+        
+        except sr.UnknownValueError:
+            print("Speech Recognition could not understand audio")
+        except sr.RequestError as e:
+            print("Could not request results from Google Speech Recognition service; {0}".format(e))
