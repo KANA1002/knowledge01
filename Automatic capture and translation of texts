@@ -1,0 +1,28 @@
+import pytesseract
+from googletrans import Translator
+from PIL import ImageGrab
+
+# Initialize the translator
+translator = Translator()
+
+# Define a function to capture on-screen text and translate it
+def capture_and_translate():
+    try:
+        # Capture screenshots
+        screenshot = ImageGrab.grab()
+
+        # Use OCR to extract text from screenshots
+        extracted_text = pytesseract.image_to_string(screenshot)
+
+        # Translate the extracted text
+        translated_text = translator.translate(extracted_text, src='auto', dest='en').text
+
+        return translated_text
+    except Exception as e:
+        return str(e)
+
+# Call a function to capture on-screen text and translate it
+translated_text = capture_and_translate()
+
+# Print the translated text
+print(f"Translated text：{translated_text}")
