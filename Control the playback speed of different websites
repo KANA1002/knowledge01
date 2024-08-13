@@ -1,0 +1,23 @@
+# use Moviepy Library adjusts the video playback speed
+from moviepy.editor import VideoFileClip
+
+def adjust_video_speed(input_video_path, output_video_path, speed_factor):
+    """
+    Adjusts the playback speed of a video using Moviepy library.
+    
+    Args:
+        input_video_path (str): Path to the input video file.
+        output_video_path (str): Path to save the adjusted video.
+        speed_factor (float): Speed factor (e.g., 2.0 for 2x speed, 0.5 for half speed).
+    """
+    clip = VideoFileClip(input_video_path)
+    adjusted_clip = clip.speedx(speed_factor)
+    adjusted_clip.write_videofile(output_video_path)
+    print(f"Video speed adjusted and saved as {output_video_path}")
+
+# Example usage:
+input_video = "input_video.mp4"
+output_video = "output_video.mp4"
+speed_factor = 2.0  # Adjust as needed (e.g., 2.0 for 2x speed, 0.5 for half speed)
+
+adjust_video_speed(input_video, output_video, speed_factor)
