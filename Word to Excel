@@ -1,0 +1,24 @@
+from docx import Document
+import openpyxl
+
+def word_to_excel(word_file, excel_file):
+    # Open the Word document
+    doc = Document(word_file)
+    
+    # Create a new Excel workbook
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    
+    # Go through all the tables in a Word document
+    for table in doc.tables:
+        for row in table.rows:
+            data = [cell.text for cell in row.cells]
+            ws.append(data)
+    
+    # Save the Excel file
+    wb.save(excel_file)
+
+# Example of use
+word_file = 'example.docx'
+excel_file = 'output.xlsx'
+word_to_excel(word_file, excel_file)
