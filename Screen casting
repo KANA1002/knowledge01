@@ -1,0 +1,29 @@
+from flask import Flask, render_template_string
+from pyngrok import ngrok
+
+app = Flask(__name__)
+
+html_template = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Screen Sharing</title>
+</head>
+<body>
+    <h1>Welcome to Screen Sharing</h1>
+    <p>Share your screen content here.</p>
+</body>
+</html>
+"""
+
+@app.route('/')
+def home():
+    return render_template_string(html_template)
+
+if __name__ == '__main__':
+    # Open a ngrok tunnel to the HTTP server
+    public_url = ngrok.connect(5000)
+    print(" * ngrok tunnel \"{}\" -> \"http://127.0.0.1:5000\"".format(public_url))
+    
+    # Start the Flask server
+    app.run(port=5000)
