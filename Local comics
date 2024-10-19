@@ -1,0 +1,18 @@
+from PIL import Image
+import os
+
+def display_comic(pages_folder):
+    # Get all the image files
+    pages = [f for f in os.listdir(pages_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
+    pages.sort()  # Make sure to display them in order
+
+    for page in pages:
+        img_path = os.path.join(pages_folder, page)
+        img = Image.open(img_path)
+        img.show()
+        input("Press Enter to see the next page...")
+
+if __name__ == "__main__":
+    # Replace with your comic image folder path
+    comic_folder = "path/to/your/comic/folder"
+    display_comic(comic_folder)
