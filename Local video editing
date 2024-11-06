@@ -1,0 +1,17 @@
+from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
+
+# Load the video file
+video = VideoFileClip("your_video.mp4")
+
+# Trim video (from 10 seconds to 20 seconds)
+video_clipped = video.subclip(10, 20)
+
+# Create a text watermark
+txt_clip = TextClip("Watermark", fontsize=70, color='white')
+txt_clip = txt_clip.set_pos('center').set_duration(video_clipped.duration)
+
+# Composite video and text watermarks
+video_with_watermark = CompositeVideoClip([video_clipped, txt_clip])
+
+# Save the edited video
+video_with_watermark.write_videofile("edited_video.mp4", codec="libx264")
