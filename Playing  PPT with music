@@ -1,0 +1,27 @@
+from pptx import Presentation
+import pygame
+import time
+
+# Initialize pygame mixer
+pygame.mixer.init()
+
+# Load the music file
+pygame.mixer.music.load('your_music_file.mp3')
+
+# Start playing the music
+pygame.mixer.music.play()
+
+# Load the PowerPoint presentation
+prs = Presentation('your_presentation.pptx')
+
+# Iterate through the slides
+for slide in prs.slides:
+    # Display slide title (for demonstration purposes)
+    for shape in slide.shapes:
+        if hasattr(shape, "text"):
+            print(shape.text)
+    # Wait for a few seconds before moving to the next slide
+    time.sleep(5)
+
+# Stop the music after the presentation is done
+pygame.mixer.music.stop()
