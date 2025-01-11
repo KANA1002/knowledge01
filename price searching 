@@ -1,0 +1,26 @@
+import requests
+
+# Sample list of network devices with their IDs
+network_devices = [
+    {"id": 1, "name": "Router"},
+    {"id": 2, "name": "Switch"},
+    {"id": 3, "name": "Firewall"}
+]
+
+# Function to get the price of a device from an API
+def get_device_price(device_id):
+    api_url = f"https://api.example.com/device/{device_id}/price"
+    response = requests.get(api_url)
+    if response.status_code == 200:
+        return response.json().get('price', 0)
+    else:
+        return 0
+
+# Calculate the total price of the network
+total_price = 0
+for device in network_devices:
+    price = get_device_price(device['id'])
+    total_price += price
+    print(f"Device: {device['name']}, Price: ${price}")
+
+print(f"Total price of the network: ${total_price}")
