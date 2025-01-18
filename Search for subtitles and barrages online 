@@ -1,0 +1,125 @@
+import requests
+from bs4 import BeautifulSoup
+import re
+
+def search_subtitles(video_url, language='en'):
+    """
+    Searches for subtitles for the given video URL.
+
+    Args:
+        video_url: URL of the video.
+        language: Desired language for the subtitles (default: 'en').
+
+    Returns:
+        A list of subtitle download links, if found.
+        None, if no subtitles are found.
+    """
+
+    # 1. Identify the video platform (e.g., YouTube, Vimeo)
+    platform = identify_platform(video_url)
+
+    # 2. Use platform-specific search methods
+    if platform == 'youtube':
+        return search_youtube_subtitles(video_url, language)
+    elif platform == 'vimeo':
+        return search_vimeo_subtitles(video_url, language)
+    else:
+        print(f"Unsupported platform: {platform}")
+        return None
+
+def identify_platform(video_url):
+    """
+    Identifies the video platform based on the URL.
+
+    Args:
+        video_url: URL of the video.
+
+    Returns:
+        The name of the video platform (e.g., 'youtube', 'vimeo').
+        'unknown' if the platform cannot be identified.
+    """
+    if 'youtube.com' in video_url:
+        return 'youtube'
+    elif 'vimeo.com' in video_url:
+        return 'vimeo'
+    else:
+        return 'unknown'
+
+def search_youtube_subtitles(video_url, language):
+    """
+    Searches for YouTube subtitles.
+
+    Args:
+        video_url: URL of the YouTube video.
+        language: Desired language for the subtitles.
+
+    Returns:
+        A list of subtitle download links, if found.
+        None, if no subtitles are found.
+    """
+    # Extract video ID from YouTube URL
+    video_id = extract_youtube_id(video_url)
+
+    # Construct YouTube subtitle API URL
+    api_url = f"https://www.youtube.com/api/timedtext?v={video_id}&lang={language}&fmt=srv3"
+
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()  # Raise an exception for bad status codes
+
+        # Parse XML response (if available)
+        soup = BeautifulSoup(response.content, 'xml')
+        tracks = soup.find_all('track')
+
+        if tracks:
+            subtitle_links = [track['url'] for track in tracks]
+            return subtitle_links
+        else:
+            return None
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching YouTube subtitles: {e}")
+        return None
+
+def extract_youtube_id(video_url):
+    """
+    Extracts the video ID from a YouTube URL.
+
+    Args:
+        video_url: URL of the YouTube video.
+
+    Returns:
+        The video ID.
+    """
+    match = re.search(r'v=([^&]+)', video_url)
+    if match:
+        return match.group(1)
+    else:
+        return None
+
+def search_vimeo_subtitles(video_url, language):
+    """
+    Searches for Vimeo subtitles.
+
+    Args:
+        video_url: URL of the Vimeo video.
+        language: Desired language for the subtitles.
+
+    Returns:
+        A list of subtitle download links, if found.
+        None, if no subtitles are found.
+    """
+    # Implement Vimeo-specific logic here
+    # ...
+    return None  # Placeholder
+
+# Example usage
+video_url = "https://www.youtube.com/watch?v=YOUR_VIDEO_ID" 
+subtitles = search_subtitles(video_url)
+
+if subtitles:
+    print("Found subtitles:")
+    for link in subtitles:
+        print(link)
+else:
+    print("No subtitles found.")
