@@ -1,0 +1,81 @@
+import wave
+import numpy as np
+import struct
+
+def decode_audio(file_path):
+    """
+    Decodes an audio file (WAV format) and returns the audio data as a NumPy array.
+
+    Args:
+        file_path (str): The path to the audio file.
+
+    Returns:
+        tuple: A tuple containing:
+            - numpy.ndarray: The audio data as a NumPy array.
+            - int: The sample rate of the audio.
+            - int: The number of channels.
+            - int: The sample width (bytes per sample).
+        Returns None if there is an error.
+    """
+    try:
+        with wave.open(file_path, 'rb') as wf:
+            num_channels = wf.getnchannels()
+            sample_width = wf.getsampwidth()
+            sample_rate = wf.getframerate()
+            num_frames = wf.getnframes()
+            audio_data = wf.readframes(num_frames)
+
+            if sample_width == 1:  # 8-bit samples
+                audio_array = np.frombuffer(audio_data, dtype=np.uint8) - 128 #center around 0
+            elif sample_width == 2:  # 16-bit samples
+                audio_array = np.frombuffer(audio_data, dtype=np.int16)
+            elif sample_width == 3: #24-bit samples
+                #24 bit audio is tricky.
+                #we have to manually unpack the bytes.
+                audio_array = []
+                for i in range(0, len(audio_data), 3):
+                    packed_bytes = audio_data[i:i+3]
+                    int_val = int.from_bytes(packed_bytes, byteorder='little', signed=True)
+                    audio_array.append(int_val)
+                audio_array = np.array(audio_array, dtype=np.int32)
+
+            elif sample_width == 4: #32-bit samples
+                audio_array = np.frombuffer(audio_data, dtype=np.int32)
+
+            else:
+                print(f"Unsupported sample width: {sample_width} bytes")
+                return None
+
+            return audio_array, sample_rate, num_channels, sample_width
+
+    except FileNotFoundError:
+        print(f"Error: File not found at {file_path}")
+        return None
+    except wave.Error as e:
+        print(f"Error decoding WAV file: {e}")
+        return None
+    except Exception as e:
+        print(f"An unexpected error occured: {e}")
+        return None
+
+# Example usage:
+file_path = "your_audio_file.wav" # Replace with your audio file path
+
+decoded_data = decode_audio(file_path)
+
+if decoded_data:
+    audio_array, sample_rate, num_channels, sample_width = decoded_data
+    print(f"Sample Rate: {sample_rate} Hz")
+    print(f"Number of Channels: {num_channels}")
+    print(f"Sample Width: {sample_width} bytes")
+    print(f"Audio Data Shape: {audio_array.shape}")
+
+    # You can now process the audio_array, for example, play it, analyze it, etc.
+    # Example to get first 10 samples.
+    print(f"First 10 samples: {audio_array[:10]}")
+
+    #Example to write the data to a text file.
+    #with open("audio_data.txt", "w") as f:
+    #   for sample in audio_array:
+    #       f.write(str(sample) + "\n")
+
