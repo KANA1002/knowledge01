@@ -1,0 +1,45 @@
+# Server.py (Run this on the computer)
+import socket
+
+def start_server():
+    # Create a socket object
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    # Get local machine IP address (you might need to change this based on your network)
+    host = '0.0.0.0'  # Listen on all available interfaces
+    port = 12345      # Port to listen on
+    
+    # Bind the socket to address and port
+    server_socket.bind((host, port))
+    
+    # Listen for incoming connections (max 1 connection in queue)
+    server_socket.listen(1)
+    print(f"Server listening on {host}:{port}")
+    
+    try:
+        while True:
+            # Accept connection from client
+            client_socket, address = server_socket.accept()
+            print(f"Connected to {address}")
+            
+            # Receive data
+            while True:
+                data = client_socket.recv(1024).decode('utf-8')
+                if not data:
+                    break
+                print(f"Received from mobile: {data}")
+                
+                # Send response back
+                response = input("Enter response to send to mobile: ")
+                client_socket.send(response.encode('utf-8'))
+            
+            client_socket.close()
+            print("Connection closed")
+            
+    except KeyboardInterrupt:
+        print("\nServer shutting down")
+    finally:
+        server_socket.close()
+
+if __name__ == "__main__":
+    start_server()
