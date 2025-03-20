@@ -1,0 +1,61 @@
+import requests
+
+def get_exchange_rate(base_currency, target_currency):
+    # API endpoint for exchange rates
+    url = f"https://api.exchangerate-api.com/v4/latest/{base_currency}"
+    
+    try:
+        # Make the API request
+        response = requests.get(url)
+        data = response.json()
+        
+        # Check if the request was successful
+        if response.status_code != 200 or 'rates' not in data:
+            raise Exception("Error fetching exchange rates")
+        
+        # Get the exchange rate for the target currency
+        rate = data['rates'].get(target_currency)
+        
+        if rate is None:
+            raise Exception(f"Currency {target_currency} not found")
+        
+        return rate
+    
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+
+def convert_currency(amount, base_currency, target_currency):
+    # Get the exchange rate
+    rate = get_exchange_rate(base_currency, target_currency)
+    
+    if rate:
+        # Calculate the converted amount
+        converted_amount = amount * rate
+        return converted_amount
+    return None
+
+def main():
+    print("Currency Converter")
+    print("-----------------")
+    
+    # Get user input
+    try:
+        amount = float(input("Enter amount to convert: "))
+        base_currency = input("Enter base currency (e.g., USD): ").upper()
+        target_currency = input("Enter target currency (e.g., EUR): ").upper()
+        
+        # Perform conversion
+        result = convert_currency(amount, base_currency, target_currency)
+        
+        if result:
+            print(f"\n{amount} {base_currency} = {result:.2f} {target_currency}")
+            print(f"Exchange rate: 1 {base_currency} = {rate:.4f} {target_currency}")
+        else:
+            print("Conversion failed. Please check your inputs or try again later.")
+            
+    except ValueError:
+        print("Please enter a valid number for the amount")
+
+if __name__ == "__main__":
+    main()
