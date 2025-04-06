@@ -1,0 +1,61 @@
+import time
+import datetime
+import schedule
+import winsound  # For Windows sound alerts (use 'os' for other systems)
+
+# Configuration
+REMINDER_INTERVAL = 4  # hours between reminders
+DEVICE_NAME = "phone"  # what you're charging
+LOW_BATTERY_THRESHOLD = 20  # percentage to start reminders
+
+def play_sound():
+    """Play a notification sound"""
+    # For Windows
+    winsound.Beep(1000, 500)  # Frequency: 1000Hz, Duration: 500ms
+    # For Mac/Linux, uncomment this instead:
+    # import os
+    # os.system('say "Time to charge your phone"')  # For Mac
+    # os.system('aplay /path/to/sound.wav')  # For Linux with a sound file
+
+def charge_reminder():
+    """Display and announce the charging reminder"""
+    current_time = datetime.datetime.now().strftime("%H:%M")
+    message = f"[{current_time}] Time to check and charge your {DEVICE_NAME}!"
+    print(message)
+    play_sound()
+    
+    # Optional: Add a simple battery level simulation/check
+    # Note: Actual battery checking requires platform-specific libraries
+    simulated_battery = int(time.time() % 100)  # Simulated battery level
+    if simulated_battery < LOW_BATTERY_THRESHOLD:
+        print(f"Warning: {DEVICE_NAME} battery might be low ({simulated_battery}%)")
+
+def setup_reminders():
+    """Set up the reminder schedule"""
+    # Schedule the reminder every X hours
+    schedule.every(REMINDER_INTERVAL).hours.do(charge_reminder)
+    
+    print(f"Charging reminder set for every {REMINDER_INTERVAL} hours")
+    print(f"Monitoring {DEVICE_NAME} charging schedule...")
+    
+    # Initial reminder
+    charge_reminder()
+
+def main():
+    """Main function to run the reminder system"""
+    setup_reminders()
+    
+    # Keep the script running
+    while True:
+        try:
+            schedule.run_pending()
+            time.sleep(60)  # Check every minute
+        except KeyboardInterrupt:
+            print("\nCharging reminder stopped by user")
+            break
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            time.sleep(60)
+
+if __name__ == "__main__":
+    main()
