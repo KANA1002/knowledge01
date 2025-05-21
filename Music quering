@@ -1,0 +1,195 @@
+import requests
+import json
+import os
+
+# --- Configuration (Replace with your actual API keys/details) ---
+# It's best practice to load these from environment variables or a config file
+# rather than hardcoding them.
+SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID", "YOUR_SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET", "YOUR_SPOTIFY_CLIENT_SECRET")
+LASTFM_API_KEY = os.environ.get("LASTFM_API_KEY", "YOUR_LASTFM_API_KEY")
+
+# --- Spotify API (Example) ---
+class SpotifyClient:
+    def __init__(self, client_id, client_secret):
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.access_token = self._get_access_token()
+
+    def _get_access_token(self):
+        auth_url = "https://accounts.spotify.com/api/token"
+        response = requests.post(
+            auth_url,
+            data={
+                "grant_type": "client_credentials",
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
+            },
+        )
+        response.raise_for_status()
+        return response.json()["access_token"]
+
+    def search_track(self, query):
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        search_url = f"https://api.spotify.com/v1/search?q={query}&type=track"
+        response = requests.get(search_url, headers=headers)
+        response.raise_for_status()
+        return response.json()
+
+    def get_artist_albums(self, artist_id):
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        albums_url = f"https://api.spotify.com/v1/artists/{artist_id}/albums?include_groups=album,single&limit=10"
+        response = requests.get(albums_url, headers=headers)
+        response.raise_for_status()
+        return response.json()
+
+# --- Last.fm API (Example) ---
+class LastFmClient:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.base_url = "http://ws.audioscrobbler.com/2.0/"
+
+    def _make_request(self, method, params):
+        params.update({
+            "method": method,
+            "api_key": self.api_key,
+            "format": "json"
+        })
+        response = requests.get(self.base_url, params=params)
+        response.raise_for_status()
+        return response.json()
+
+    def search_artist(self, artist_name):
+        return self._make_request("artist.search", {"artist": artist_name})
+
+    def get_top_tracks(self, artist_name):
+        return self._make_request("artist.gettoptracks", {"artist": artist_name})
+
+# --- YouTube Music API (Unofficial, using ytmusicapi) ---
+# This requires `pip install ytmusicapi`
+try:
+    from ytmusicapi import YTMusic
+except ImportError:
+    YTMusic = None
+    print("ytmusicapi not installed. Install with 'pip install ytmusicapi' for YouTube Music queries.")
+
+class YouTubeMusicClient:
+    def __init__(self, auth_file='oauth.json'):
+        if YTMusic is None:
+            raise ImportError("ytmusicapi is required for YouTube Music queries.")
+        try:
+            self.yt = YTMusic(auth_file)
+        except Exception as e:
+            print(f"Error initializing YouTube Music client: {e}")
+            print("Please ensure you have an 'oauth.json' file or configure authentication as per ytmusicapi docs.")
+            self.yt = None
+
+    def search(self, query, filter='songs'):
+        if not self.yt:
+            return {"error": "YouTube Music client not initialized."}
+        try:
+            return self.yt.search(query, filter=filter)
+        except Exception as e:
+            return {"error": f"YouTube Music search failed: {e}"}
+
+    def get_song_lyrics(self, video_id):
+        if not self.yt:
+            return {"error": "YouTube Music client not initialized."}
+        try:
+            return self.yt.get_lyrics(video_id)
+        except Exception as e:
+            return {"error": f"YouTube Music lyrics failed: {e}"}
+
+# --- Main execution ---
+def main():
+    # --- Spotify Example ---
+    print("--- Spotify Queries ---")
+    if SPOTIFY_CLIENT_ID != "YOUR_SPOTIFY_CLIENT_ID" and SPOTIFY_CLIENT_SECRET != "YOUR_SPOTIFY_CLIENT_SECRET":
+        spotify_client = SpotifyClient(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
+        try:
+            track_results = spotify_client.search_track("Bohemian Rhapsody Queen")
+            print("\nSpotify Search Results for 'Bohemian Rhapsody Queen':")
+            if track_results and track_results['tracks']['items']:
+                for i, track in enumerate(track_results['tracks']['items'][:3]):
+                    print(f"{i+1}. Title: {track['name']}, Artist: {track['artists'][0]['name']}")
+                    if i == 0: # Get albums for the first artist
+                        artist_id = track['artists'][0]['id']
+                        artist_name = track['artists'][0]['name']
+                        print(f"Getting albums for {artist_name}...")
+                        albums = spotify_client.get_artist_albums(artist_id)
+                        if albums and albums['items']:
+                            print(f"Top 3 albums by {artist_name}:")
+                            for j, album in enumerate(albums['items'][:3]):
+                                print(f"   - {album['name']} ({album['release_date']})")
+                        else:
+                            print(f"No albums found for {artist_name}.")
+            else:
+                print("No tracks found.")
+        except requests.exceptions.RequestException as e:
+            print(f"Spotify API error: {e}")
+        except KeyError:
+            print("Could not parse Spotify API response. Check API keys and response structure.")
+    else:
+        print("Spotify API keys not configured. Skipping Spotify examples.")
+
+    # --- Last.fm Example ---
+    print("\n--- Last.fm Queries ---")
+    if LASTFM_API_KEY != "YOUR_LASTFM_API_KEY":
+        lastfm_client = LastFmClient(LASTFM_API_KEY)
+        try:
+            artist_results = lastfm_client.search_artist("Radiohead")
+            print("\nLast.fm Search Results for 'Radiohead':")
+            if artist_results and artist_results['results']['artistmatches']['artist']:
+                for i, artist in enumerate(artist_results['results']['artistmatches']['artist'][:3]):
+                    print(f"{i+1}. Artist: {artist['name']}, Listeners: {artist['listeners']}")
+
+                if artist_results['results']['artistmatches']['artist']:
+                    artist_name = artist_results['results']['artistmatches']['artist'][0]['name']
+                    print(f"\nTop tracks for {artist_name}:")
+                    top_tracks = lastfm_client.get_top_tracks(artist_name)
+                    if top_tracks and 'toptracks' in top_tracks and top_tracks['toptracks']['track']:
+                        for i, track in enumerate(top_tracks['toptracks']['track'][:5]):
+                            print(f"   - {track['name']} (Playcount: {track['playcount']})")
+                    else:
+                        print(f"No top tracks found for {artist_name}.")
+            else:
+                print("No artists found.")
+        except requests.exceptions.RequestException as e:
+            print(f"Last.fm API error: {e}")
+        except KeyError:
+            print("Could not parse Last.fm API response. Check API key and response structure.")
+    else:
+        print("Last.fm API key not configured. Skipping Last.fm examples.")
+
+    # --- YouTube Music Example ---
+    print("\n--- YouTube Music Queries ---")
+    if YTMusic is not None:
+        yt_music_client = YouTubeMusicClient()
+        if yt_music_client.yt:
+            try:
+                search_query = "Shape of My Heart Sting"
+                yt_results = yt_music_client.search(search_query)
+                print(f"\nYouTube Music Search Results for '{search_query}':")
+                if yt_results:
+                    for i, item in enumerate(yt_results[:3]):
+                        print(f"{i+1}. Type: {item['resultType']}, Title: {item['title']}, Artist: {item.get('artist', 'N/A')}")
+                        if item['resultType'] == 'song' and i == 0:
+                            video_id = item['videoId']
+                            print(f"Getting lyrics for: {item['title']}")
+                            lyrics = yt_music_client.get_song_lyrics(video_id)
+                            if lyrics and 'lyrics' in lyrics:
+                                print(f"   Lyrics (partial):\n{lyrics['lyrics'][:200]}...") # Print first 200 chars
+                            else:
+                                print("   No lyrics found or error fetching lyrics.")
+                else:
+                    print("No YouTube Music results found.")
+            except Exception as e:
+                print(f"An unexpected error occurred with YouTube Music: {e}")
+        else:
+            print("YouTube Music client could not be initialized. Check setup.")
+    else:
+        print("ytmusicapi is not installed. Skipping YouTube Music examples.")
+
+
+if __name__ == "__main__":
+    main()
