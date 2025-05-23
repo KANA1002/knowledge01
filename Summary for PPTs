@@ -1,0 +1,68 @@
+import os
+from pptx import Presentation
+from transformers import pipeline
+import torch
+
+# Initialize the summarization pipeline (using a smaller model for efficiency)
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn", device=0 if torch.cuda.is_available() else -1)
+
+# Function to extract text from a PPTX file
+def extract_text_from_pptx(pptx_path):
+    try:
+        prs = Presentation(pptx_path)
+        text = []
+        for slide in prs.slides:
+            slide_text = []
+            for shape in slide.shapes:
+                if hasattr(shape, "text") and shape.text.strip():
+                    slide_text.append(shape.text.strip())
+            if slide_text:
+                text.append("\n".join(slide_text))
+        return "\n".join(text)
+    except Exception as e:
+        return f"Error processing {pptx_path}: {str(e)}"
+
+# Function to summarize text
+def summarize_text(text, max_length=150, min_length=50):
+    try:
+        # Truncate text to avoid exceeding model token limits (BART supports ~1024 tokens)
+        if len(text) > 1000:
+            text = text[:1000]
+        summary = summarizer(text, max_length=max_length, min_length=min_length, do_sample=False)
+        return summary[0]['summary_text']
+    except Exception as e:
+        return f"Error summarizing text: {str(e)}"
+
+# Main function to process multiple PPTX files
+def summarize_pptx_files(input_folder, output_file):
+    # Ensure the input folder exists
+    if not os.path.exists(input_folder):
+        print(f"Input folder {input_folder} does not exist.")
+        return
+
+    # Open output file to write summaries
+    with open(output_file, 'w', encoding='utf-8') as f:
+        for filename in os.listdir(input_folder):
+            if filename.endswith(".pptx"):
+                pptx_path = os.path.join(input_folder, filename)
+                print(f"Processing {filename}...")
+                
+                # Extract text from PPTX
+                text = extract_text_from_pptx(pptx_path)
+                
+                if text and not text.startswith("Error"):
+                    # Summarize the extracted text
+                    summary = summarize_text(text)
+                    f.write(f"\n=== Summary for {filename} ===\n")
+                    f.write(summary + "\n")
+                    print(f"Summary generated for {filename}")
+                else:
+                    f.write(f"\n=== Summary for {filename} ===\n")
+                    f.write(text + "\n")
+                    print(f"Failed to process {filename}")
+
+# Example usage
+input_folder = "path/to/your/pptx/folder" # Replace with your folder path
+output_file = "pptx_summaries.txt" # Output file for summaries
+summarize_pptx_files(input_folder, output_file)
+print(f"Summaries saved to {output_file}")
