@@ -1,0 +1,102 @@
+import win32com.client
+import win32gui
+import win32con
+import pyautogui
+import time
+import os
+
+def bring_window_to_front(window_title):
+    """Bring a window with the given title to the foreground."""
+    def window_enum_handler(hwnd, ctx):
+        if window_title.lower() in win32gui.GetWindowText(hwnd).lower():
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(hwnd)
+    win32gui.EnumWindows(window_enum_handler, None)
+
+def main():
+    # File paths for Word document and PowerPoint presentation
+    word_file = r"C:\Path\To\Your\Document.docx" # Replace with your Word file path
+    ppt_file = r"C:\Path\To\Your\Presentation.pptx" # Replace with your PowerPoint file path
+
+    # Check if files exist
+    if not os.path.exists(word_file):
+        print(f"Word file not found: {word_file}")
+        return
+    if not os.path.exists(ppt_file):
+        print(f"PowerPoint file not found: {ppt_file}")
+        return
+
+    # Initialize Word and PowerPoint applications
+    try:
+        word_app = win32com.client.Dispatch("Word.Application")
+        word_app.Visible = True # Make Word visible
+        doc = word_app.Documents.Open(word_file)
+    except Exception as e:
+        print(f"Error opening Word document: {e}")
+        return
+
+    try:
+        ppt_app = win32com.client.Dispatch("PowerPoint.Application")
+        ppt_app.Visible = True # Make PowerPoint visible
+        presentation = ppt_app.Presentations.Open(ppt_file)
+    except Exception as e:
+        print(f"Error opening PowerPoint presentation: {e}")
+        word_app.Quit()
+        return
+
+    # Start PowerPoint slideshow
+    try:
+        presentation.SlideShowSettings.Run()
+        time.sleep(1) # Wait for slideshow to start
+        pyautogui.press('f5') # Simulate F5 to ensure slideshow begins
+    except Exception as e:
+        print(f"Error starting PowerPoint slideshow: {e}")
+        doc.Close()
+        word_app.Quit()
+        presentation.Close()
+        ppt_app.Quit()
+        return
+
+    print("Starting to switch between Word and PowerPoint. Press Ctrl+C to stop.")
+    try:
+        while True:
+            # Bring PowerPoint to front
+            bring_window_to_front("PowerPoint Slide Show")
+            print("Showing PowerPoint...")
+            time.sleep(5) # Display PowerPoint for 5 seconds
+
+            # Bring Word to front
+            bring_window_to_front("Microsoft Word")
+            print("Showing Word...")
+            time.sleep(5) # Display Word for 5 seconds
+
+    except KeyboardInterrupt:
+        print("\nStopping the script...")
+    finally:
+        # Clean up: Close files and quit applications
+        try:
+            presentation.SlideShowWindow.View.Exit() # Exit slideshow
+            presentation.Close()
+            ppt_app.Quit()
+        except:
+            pass
+        try:
+            doc.Close()
+            word_app.Quit()
+        except:
+            pass
+
+if __name__ == "__main__":
+    # Install required libraries if not already installed
+    try:
+        import win32com.client
+    except ImportError:
+        print("Installing pywin32...")
+        os.system("pip install pywin32")
+    try:
+        import pyautogui
+    except ImportError:
+        print("Installing pyautogui...")
+        os.system("pip install pyautogui")
+
+    main()
